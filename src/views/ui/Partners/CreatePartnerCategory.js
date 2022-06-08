@@ -17,38 +17,33 @@ import { Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { axiosJWT } from "../Auth/axiosJWT";
 
-const CreateCategory = () => {
+const CreatePartnerCategory = () => {
   const token = localStorage.getItem("tokenkey");
-
   const [error, setError] = useState({});
-
-  const [ProductCategory, setProductCategory] = useState("");
+  const [PartnerCategory, setPartnerCategory] = useState("");
 
   const [faqPostStatus, setfaqPostStatus] = useState(false);
 
   const [alert, setAlert] = useState(true);
 
   const postCreateCategory = async () => {
-    const ProductData = {
-      name: ProductCategory,
+    const PartnerData = {
+      name: PartnerCategory,
     };
 
     await axiosJWT
-      .post(
-        `${process.env.REACT_APP_API_URL}/admin/product/category`,
-        ProductData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .post(`/admin/partner/category`, PartnerData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
+        console.log(response);
         setfaqPostStatus(response.status);
       })
       .catch((error) => {
-        setError(error.response.status);
         console.log(error);
+        setError(error.response.status);
       });
   };
 
@@ -74,7 +69,7 @@ const CreateCategory = () => {
       <div>
         {faqPostStatus && (
           <Alert color="success">
-            Product Category Created successfully Now You Can Create Product
+            Partner Category Created successfully Now You Can Create Product
             Under This Created Category
           </Alert>
         )}
@@ -95,7 +90,7 @@ const CreateCategory = () => {
                   {" "}
                   <FormGroup>
                     <AvField
-                      label="Enter Product Category Name"
+                      label="Enter Partner Category Name"
                       type="text"
                       errorMessage="Invalid Title"
                       validate={{
@@ -104,10 +99,10 @@ const CreateCategory = () => {
                         minLength: { value: 3 },
                       }}
                       id="ProductCate"
-                      name="Enter Product Category Name"
-                      placeholder="Enter Product Category Name"
+                      name="Enter Partner Category Name"
+                      placeholder="Enter Partner Category Name"
                       onChange={(event) =>
-                        setProductCategory(event.target.value)
+                        setPartnerCategory(event.target.value)
                       }
                     />
                   </FormGroup>
@@ -139,7 +134,7 @@ const CreateCategory = () => {
                         </Button>
                       </FormGroup>
 
-                      {faqPostStatus ? <Navigate to="/myproducts" /> : null}
+                      {faqPostStatus ? <Navigate to="/partners" /> : null}
                     </div>
                   </CardBody>
                 </Card>
@@ -152,4 +147,4 @@ const CreateCategory = () => {
   );
 };
 
-export default CreateCategory;
+export default CreatePartnerCategory;

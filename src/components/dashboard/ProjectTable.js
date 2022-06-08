@@ -1,53 +1,9 @@
 import react, { useState, useEffect } from "react";
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
-import user1 from "../../assets/images/users/user1.jpg";
-import user2 from "../../assets/images/users/user2.jpg";
-import user3 from "../../assets/images/users/user3.jpg";
-import user4 from "../../assets/images/users/user4.jpg";
-import user5 from "../../assets/images/users/user5.jpg";
-import axios from "axios";
-const tableData = [
-  {
-    avatar: user1,
-    name: "Hanna Gover",
-    email: "hgover@gmail.com",
-    project: "Flexy React",
-    status: "pending",
-    weeks: "35",
-  },
-  {
-    avatar: user2,
-    name: "Hanna Gover",
-    email: "hgover@gmail.com",
-    project: "Lading pro React",
-    status: "done",
-    weeks: "35",
-  },
-  {
-    avatar: user3,
-    name: "Hanna Gover",
-    email: "hgover@gmail.com",
-    project: "Elite React",
-    status: "holt",
-    weeks: "35",
-  },
-  {
-    avatar: user4,
-    name: "Hanna Gover",
-    email: "hgover@gmail.com",
-    project: "Flexy React",
-    status: "pending",
-    weeks: "35",
-  },
-  {
-    avatar: user5,
-    name: "Hanna Gover",
-    email: "hgover@gmail.com",
-    project: "Ample React",
-    status: "done",
-    weeks: "35",
-  },
-];
+
+import user4 from "../../assets/images/users/user.png";
+
+import { axiosJWT } from "../../views/ui/Auth/axiosJWT";
 
 const ProjectTables = (props) => {
   const [ResponseapiData, setResponseapiData] = useState([]);
@@ -57,12 +13,13 @@ const ProjectTables = (props) => {
   const [mselectedResponse, setmSelectedResponse] = useState(false);
 
   const [selectedResponsedata, setSelectedResponsedata] = useState([]);
+  const token = localStorage.getItem("tokenkey");
 
   const getConactData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/consultation/`, {
+    await axiosJWT
+      .get(`/admin/consultation/`, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
@@ -85,6 +42,9 @@ const ProjectTables = (props) => {
         });
 
         setResponseapiData(contactData);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   };
   // console.log(ResponseapiData);

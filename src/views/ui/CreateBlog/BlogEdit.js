@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Navigate, useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+
 import Loader from "../../../layouts/loader/Loader";
 import { useForm } from "react-hook-form";
 import imgplace from "../../../assets/images/imgplace.jpg";
-
+import { axiosJWT } from "../Auth/axiosJWT";
 import {
   Card,
   CardImg,
@@ -25,6 +25,7 @@ import draftToHtml from "draftjs-to-html";
 import { AvForm, AvField } from "availity-reactstrap-validation";
 // ------------------------------------------
 const BlogEdit = () => {
+  const token = localStorage.getItem("tokenkey");
   const params = useParams();
   const blogid = params.blogid;
   const [blogcontent, setblogContent] = useState("");
@@ -74,15 +75,15 @@ const BlogEdit = () => {
   // GET OLD POST DATA
 
   const getFaqData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/blog/${blogid}/`, {
+    await axiosJWT
+      .get(`/admin/blog/${blogid}/`, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
         const ResponseData = data.data;
-        console.log(ResponseData);
+
         setisPosted(data.status);
         setblogtitle(ResponseData.title);
         setblogcontentdata(ResponseData.content);
@@ -114,7 +115,6 @@ const BlogEdit = () => {
 
     if (uploadNewImage) {
       if (blogimageedit != undefined) {
-        console.log(blogimageedit);
         formData.append("image", blogimageedit.target.files[0]);
 
         formData.append("title", blogtitle);
@@ -141,21 +141,19 @@ const BlogEdit = () => {
       formData.append("draft", blogdraft);
     }
     formData.append("draft", blogdraft);
-    console.log(blogdraft);
 
-    axios
+    axiosJWT
       .patch(
-        `${process.env.REACT_APP_API_URL}/admin/blog/${blogid}/`,
+        `/admin/blog/${blogid}/`,
         formData,
 
         {
           headers: {
-            Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       )
       .then((response) => {
-        console.log(response);
         setisPosted(response);
         if (response.status === 200) {
           setTimeout(() => {
@@ -169,16 +167,11 @@ const BlogEdit = () => {
           const Errormsg = () => {};
 
           //do something
-          console.log(error.response);
         } else if (error.request) {
-          console.log("ERROR REQUEST");
           //do something else
         } else if (error.message) {
-          console.log("ERROR MESSAGE");
-
           //do something other than the other two
         }
-        console.log("FREOM HERE");
       });
   };
 
@@ -211,18 +204,17 @@ const BlogEdit = () => {
 
   // DELETE POST
   const BlogDeleteHandler = () => {
-    axios
+    axiosJWT
       .delete(
-        `${process.env.REACT_APP_API_URL}/admin/blog/${blogid}/`,
+        `/admin/blog/${blogid}/`,
 
         {
           headers: {
-            Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       )
       .then((response) => {
-        console.log(response);
         setisDeleted(response.status);
       })
       .catch((error) => {
@@ -252,6 +244,12 @@ const BlogEdit = () => {
         <Alert color="warning">
           Some Error Occured Please Try Again Or Close The Website And Open
           Again or Upload Lower Size Image
+        </Alert>
+      ) : null}
+
+      {error === 0 ? (
+        <Alert color="warning">
+          Some Error Occured Please Try tTo Upload Image Size Less Than 2Mb
         </Alert>
       ) : null}
       <AvForm onSubmit={handleSubmit(editBlog)}>
@@ -348,7 +346,8 @@ const BlogEdit = () => {
                   <div className="button-group">
                     <Button
                       type="submit"
-                      className="btn"
+                      className="btn btn-hover"
+                      style={{ backgroundColor: "#324398" }}
                       color="primary"
                       size="lg"
                       block
@@ -406,7 +405,8 @@ const BlogEdit = () => {
                           onClick={() => {
                             deletebtnhandler();
                           }}
-                          className="btn"
+                          className="btn btn-hover"
+                          style={{ backgroundColor: "#324398" }}
                           color="primary"
                           size="lg"
                           block
@@ -438,7 +438,8 @@ const BlogEdit = () => {
                       onClick={() => {
                         uploadNewImageHandler();
                       }}
-                      className="btn"
+                      className="btn btn-hover"
+                      style={{ backgroundColor: "#324398" }}
                       color="primary"
                       size="lg"
                       block
@@ -464,7 +465,11 @@ const BlogEdit = () => {
                           )}
                         </Col>
                         <FormGroup>
-                          <Label className="labelbtn mt-3" for="Addimage">
+                          <Label
+                            style={{ backgroundColor: "#324398" }}
+                            className=" btn-hover labelbtn mt-3"
+                            for="Addimage"
+                          >
                             Add Image
                           </Label>
 

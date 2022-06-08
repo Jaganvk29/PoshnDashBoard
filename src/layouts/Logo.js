@@ -4,7 +4,7 @@ import PoshnLogo from "../assets/images/logos/poshnlogo.png";
 import "../Css/main.css";
 const Logo = () => {
   return (
-    <Link to="/">
+    <Link to="/starter">
       <img className="poshn-logo" src={PoshnLogo} />
     </Link>
   );

@@ -9,19 +9,15 @@ import {
 } from "availity-reactstrap-validation";
 import imgplace from "../../../assets/images/imgplace.jpg";
 import { useForm } from "react-hook-form";
-
+import { axiosJWT } from "../Auth/axiosJWT";
 import {
   Card,
   CardImg,
-  CardText,
   CardBody,
   CardTitle,
-  CardSubtitle,
-  CardGroup,
   Button,
   Row,
   Col,
-  Form,
   FormGroup,
   Label,
   Input,
@@ -39,6 +35,7 @@ import axios from "axios";
 import Loader from "../../../layouts/loader/Loader";
 
 const BlogEditHome = () => {
+  const token = localStorage.getItem("tokenkey");
   const {
     register,
     handleSubmit,
@@ -46,8 +43,6 @@ const BlogEditHome = () => {
     formState: { errors },
   } = useForm();
   // const onSubmit = (data) => console.log("THIS FUNCTION TRIGGD");
-
-  console.log(watch("example")); // watch input value by passing the name of it
 
   // POST STATE  HANDLER
   const [isPosted, setisPosted] = useState([]);
@@ -111,8 +106,6 @@ const BlogEditHome = () => {
     }
   };
 
-  console.log(blogtitle);
-
   //  = console.log(data);
 
   const createBlog = async () => {
@@ -126,16 +119,13 @@ const BlogEditHome = () => {
 
     formData.append("draft", blogdraft);
 
-    // ${process.env.REACT_APP_API_URL}
-    // console.log(blogthumb.target.files[0]);
-    axios
+    axiosJWT
       .post(`https://girish.ml/admin/blog/`, formData, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
-        console.log(response);
         setisPosted(response);
         if (response.status === 201) {
           setTimeout(() => {
@@ -149,20 +139,14 @@ const BlogEditHome = () => {
           const Errormsg = () => {};
 
           //do something
-          console.log(error.response);
         } else if (error.request) {
-          console.log("ERROR REQUEST");
           //do something else
         } else if (error.message) {
-          console.log("ERROR MESSAGE");
-
           //do something other than the other two
         }
-        console.log("FREOM HERE");
       });
   };
 
-  console.log();
   const loaderhandler = () => {
     setLoader(true);
   };
@@ -170,7 +154,6 @@ const BlogEditHome = () => {
   const handleChange = (event) => {
     event.preventDefault();
     const { name, value } = event.target;
-    // let errors = this.state.errors;
 
     switch (name) {
       case "Blogtitle":
@@ -184,28 +167,6 @@ const BlogEditHome = () => {
         }
 
         break;
-
-      // case "image":
-      //   if (value.length > 0) {
-      //     setError({
-      //       blogimage: "Image is Required",
-      //     });
-      //   } else {
-      //     setblogthumb(event);
-      //     setError({ blogtitle: " " });
-      //   }
-
-      //   break;
-
-      // case "email":
-      //   errors.email = validEmailRegex.test(value) ? "" : "Email is not valid!";
-      //   break;
-      // case "password":
-      //   errors.password =
-      //     value.length < 8
-      //       ? "Password must be at least 8 characters long!"
-      //       : "";
-      //   break;
 
       default:
         break;
@@ -230,10 +191,6 @@ const BlogEditHome = () => {
       <AvForm onSubmit={handleSubmit(createBlog)}>
         <Row>
           <Col xs="12" md="8" lg="9">
-            {/* --------------------------------------------------------------------------------*/}
-            {/* Card-3*/}
-            {/* --------------------------------------------------------------------------------*/}
-
             {/* TITLE */}
             <Card>
               <CardTitle tag="h6" className="p-3 mb-0">
@@ -255,10 +212,6 @@ const BlogEditHome = () => {
                   placeholder="Enter Your Blog Title"
                   onChange={(event) => setblogTitle(event.target.value)}
                 />
-                {/* <label for="blogtitle">Enter Your Blog Title</label>
-                <input
-                  {...register("BlogTitle", { required: true, minLength: 10 })}
-                /> */}
                 {/* </FormGroup> */}
               </CardBody>
               {errors.BlogTitle && (
@@ -277,8 +230,6 @@ const BlogEditHome = () => {
                 {/* TEXT EDITOR */}
 
                 <div>
-                  {/* <h1>React Editors</h1>
-                     <h2>Start editing to see some magic happen!</h2> */}
                   <div
                     style={{
                       border: "1px solid black",
@@ -306,7 +257,6 @@ const BlogEditHome = () => {
                 </div>
               </CardBody>
             </Card>
-            {/* </FormGroup> */}
           </Col>
 
           {/* RIGHT SIDE ACTIONS */}
@@ -324,7 +274,8 @@ const BlogEditHome = () => {
                         onClick={() => {
                           loaderhandler();
                         }}
-                        className="btn"
+                        className="btn btn-hover"
+                        style={{ backgroundColor: "#324398" }}
                         size="lg"
                         block
                         type="submit"
@@ -333,14 +284,6 @@ const BlogEditHome = () => {
                       >
                         Publish
                       </Button>
-
-                      {/* <Button
-                      
-                        onClick={() => {
-                          createBlog(false);
-                          loaderhandler();
-                        }}
-                      ></Button> */}
 
                       <Button
                         disabled={imagesize}
@@ -384,7 +327,11 @@ const BlogEditHome = () => {
                     )}
 
                     <FormGroup>
-                      <Label className="labelbtn mt-3" for="Addimage">
+                      <Label
+                        className="labelbtn mt-3 btn-hover"
+                        style={{ backgroundColor: "#324398" }}
+                        for="Addimage"
+                      >
                         Add Image
                       </Label>
 

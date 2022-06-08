@@ -3,6 +3,7 @@ import Chart from "react-apexcharts";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Loader from "../../layouts/loader/Loader";
+import { axiosJWT } from "../../views/ui/Auth/axiosJWT";
 const SalesChart = () => {
   const options = {
     chart: {
@@ -70,15 +71,15 @@ const SalesChart = () => {
 
   const [ProductapiData, setMyproductsApiData] = useState([]);
   const [apiStatus, setApiStatus] = useState();
-
+  const token = localStorage.getItem("tokenkey");
   useEffect(() => {
     getMyproductData();
   }, []);
   const getMyproductData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/product/`, {
+    await axiosJWT
+      .get(`/admin/product/`, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
@@ -99,9 +100,11 @@ const SalesChart = () => {
         });
 
         setMyproductsApiData(Myproductarr);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   };
-  console.log(ProductapiData);
 
   return (
     <Card>

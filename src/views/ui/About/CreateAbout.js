@@ -1,5 +1,6 @@
 import react, { useState, useEffect } from "react";
 import axios from "axios";
+import { axiosJWT } from "../Auth/axiosJWT";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Card,
@@ -21,6 +22,7 @@ import {
 } from "reactstrap";
 import Loader from "../../../layouts/loader/Loader";
 const CreateAbout = () => {
+  const token = localStorage.getItem("tokenkey");
   let history = useNavigate();
 
   // POST STATE  HANDLER
@@ -56,37 +58,6 @@ const CreateAbout = () => {
   const [image2, setimage2] = useState();
   const [image3, setimage3] = useState();
 
-  //   // GET REQUEST FROM SERVER
-  //   const getAboutData = async () => {
-  //     await axios
-  //       .get(`${process.env.REACT_APP_API_URL}/admin/about`, {
-  //         headers: {
-  //           Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
-  //         },
-  //       })
-  //       .then((data) => {
-  //         const ResponseData = data.data;
-  //         setApiStatus(data.status);
-  //         console.log(ResponseData);
-
-  //         const contactData = [];
-  //         if (ResponseData != null && undefined) {
-  //           setAbName(ResponseData[0].name);
-  //           setabExperience(ResponseData[0].experience);
-  //           setabprofessionalaff(ResponseData[0].professional_affiliations);
-  //           setabAbout(ResponseData[0].about);
-  //           setabprofessionalback(ResponseData[0].professional_background);
-  //           setimage1(ResponseData[0].image1);
-  //           setimage2(ResponseData[0].image2);
-  //           setimage3(ResponseData[0].image3);
-  //         }
-  //       });
-  //   };
-
-  //   useEffect(() => {
-  //     getAboutData();
-  //   }, []);
-
   // Post REQUEST TO SERVER
   const editAbout = async () => {
     const formData = new FormData();
@@ -107,19 +78,18 @@ const CreateAbout = () => {
     formData.append("professional_background", abprofessionalback);
     formData.append("professional_affiliations", abprofessionalaff);
 
-    axios
+    axiosJWT
       .post(
-        `${process.env.REACT_APP_API_URL}/admin/about`,
+        `/admin/about`,
         formData,
 
         {
           headers: {
-            Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       )
       .then((response) => {
-        console.log(response);
         setisPosted(response);
         if (response.status === 200) {
           setTimeout(() => {
@@ -147,7 +117,7 @@ const CreateAbout = () => {
 
   const imageHandler2 = (e) => {
     setUploadeditNewImage2(e);
-    console.log(e);
+
     const reader = new FileReader();
     reader.onload = () => {
       if (reader.readyState === 2) {
@@ -159,7 +129,7 @@ const CreateAbout = () => {
 
   const imageHandler3 = (e) => {
     setUploadeditNewImage3(e);
-    console.log(e);
+
     const reader = new FileReader();
     reader.onload = () => {
       if (reader.readyState === 2) {

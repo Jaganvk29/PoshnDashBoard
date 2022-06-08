@@ -25,7 +25,9 @@ const Blog = (props) => {
         <CardSubtitle>{props.subtitle}</CardSubtitle>
         <CardText className="mt-3">{props.text}</CardText>
         <Link to={`${props.link}`}>
-          <Button color={props.color}>Edit</Button>
+          <Button className="btn-hover" style={{ backgroundColor: "#324398" }}>
+            Edit
+          </Button>
         </Link>
       </CardBody>
     </Card>

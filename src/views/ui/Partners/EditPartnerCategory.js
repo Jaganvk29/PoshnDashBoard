@@ -17,13 +17,11 @@ import { Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { axiosJWT } from "../Auth/axiosJWT";
 
-const EditCategory = () => {
-  const [error, setError] = useState({});
-
+const EditPartnerCategory = () => {
   const token = localStorage.getItem("tokenkey");
-
+  const [error, setError] = useState({});
   const params = useParams();
-  const catId = params.catid;
+  const catId = params.pcatId;
   const [ProductCategory, setProductCategory] = useState("");
 
   const [faqPostStatus, setfaqPostStatus] = useState(false);
@@ -45,19 +43,15 @@ const EditCategory = () => {
 
   const getMyproductData = async () => {
     await axiosJWT
-      .get(`/admin/product/category/${catId}/`, {
+      .get(`/admin/partner/category/${catId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
         const ResponseData = data.data;
-
+        console.log(ResponseData);
         setProductCategory(ResponseData.name);
-      })
-      .catch((error) => {
-        setError(error.response.status);
-        console.log(error);
       });
   };
 
@@ -67,7 +61,7 @@ const EditCategory = () => {
     };
 
     await axiosJWT
-      .patch(`/admin/product/category/${catId}/`, ProductData, {
+      .patch(`/admin/partner/category/${catId}/`, ProductData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -76,8 +70,8 @@ const EditCategory = () => {
         setfaqPostStatus(response.status);
       })
       .catch((error) => {
-        setError(error.response.status);
         console.log(error);
+        setError(error.response.status);
       });
   };
 
@@ -102,7 +96,7 @@ const EditCategory = () => {
   const BlogDeleteHandler = () => {
     axiosJWT
       .delete(
-        `/admin/product/category/${catId}/`,
+        `/admin/partner/category/${catId}/`,
 
         {
           headers: {
@@ -114,8 +108,8 @@ const EditCategory = () => {
         setisDeleted(response.status);
       })
       .catch((error) => {
-        setError(error.response.status);
         console.log(error);
+        setError(error.response.status);
       });
   };
 
@@ -123,7 +117,7 @@ const EditCategory = () => {
     <div>
       <div>
         {faqPostStatus && (
-          <Alert color="success">Category Edited successfully</Alert>
+          <Alert color="success">Partner Category Edited successfully</Alert>
         )}
 
         {error >= 400 ? (
@@ -143,7 +137,7 @@ const EditCategory = () => {
                   {" "}
                   <FormGroup>
                     <AvField
-                      label="Enter Product Category Name"
+                      label="Enter Partner Category Name"
                       type="text"
                       errorMessage="Invalid Title"
                       value={ProductCategory}
@@ -152,9 +146,9 @@ const EditCategory = () => {
 
                         minLength: { value: 3 },
                       }}
-                      id="ProductCate"
-                      name="Enter Product Category Name"
-                      placeholder="Enter Product Category Name"
+                      id="PartnerCate"
+                      name="Enter Partner Category Name"
+                      placeholder="Enter Partner Category Name"
                       onChange={(event) =>
                         setProductCategory(event.target.value)
                       }
@@ -229,8 +223,8 @@ const EditCategory = () => {
                           </div>
                         )}
                       </FormGroup>
-                      {isDeleted === 204 ? <Navigate to="/myproducts" /> : null}
-                      {faqPostStatus ? <Navigate to="/myproducts" /> : null}
+                      {isDeleted === 204 ? <Navigate to="/partners" /> : null}
+                      {faqPostStatus ? <Navigate to="/partners" /> : null}
                     </div>
                   </CardBody>
                 </Card>
@@ -243,4 +237,4 @@ const EditCategory = () => {
   );
 };
 
-export default EditCategory;
+export default EditPartnerCategory;

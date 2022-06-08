@@ -1,7 +1,5 @@
 import { Button, Nav, NavItem } from "reactstrap";
 import { Link, useLocation } from "react-router-dom";
-import user1 from "../assets/images/users/user4.jpg";
-import probg from "../assets/images/bg/download.jpg";
 
 const navigation = [
   {
@@ -12,77 +10,59 @@ const navigation = [
   {
     title: "Myproducts",
     href: "/myproducts",
-    icon: "bi bi-layout-split",
+    icon: "bi bi bi-diagram-2",
   },
 
-  // {
-  //   title: "Alert",
-  //   href: "/alerts",
-  //   icon: "bi bi-bell",
-  // },
-
-  // {
-  //   title: "Badges",
-  //   href: "/badges",
-  //   icon: "bi bi-patch-check",
-  // },
-  // {
-  //   title: "Buttons",
-  //   href: "/buttons",
-  //   icon: "bi bi-hdd-stack",
-  // },
   {
     title: "Blog",
     href: "/blog",
-    icon: "bi bi-card-text",
+    icon: "bi bi-newspaper",
   },
 
   {
     title: "FAQ",
     href: "/faq",
-    icon: "bi bi-card-text",
+    icon: "bi bi-question-circle",
   },
-  // {
-  //   title: "Grid",
-  //   href: "/grid",
-  //   icon: "bi bi-columns",
-  // },
 
   {
     title: "Diet Survey",
     href: "/dietsurvey",
-    icon: "bi bi-layout-split",
+    icon: "bi bi-bar-chart",
   },
 
   {
     title: "Booking",
     href: "/booking",
-    icon: "bi bi-layout-split",
+    icon: "bi bi-table",
   },
   {
     title: "Responses",
     href: "/responses",
-    icon: "bi bi-layout-split",
+    icon: "bi bi-chat-left-dots",
   },
 
-  // {
-  //   title: "Forms",
-  //   href: "/forms",
-  //   icon: "bi bi-textarea-resize",
-  // },
-  // {
-  //   title: "Breadcrumbs",
-  //   href: "/breadcrumbs",
-  //   icon: "bi bi-link",
-  // },
+  {
+    title: "Partners",
+    href: "/partners",
+    icon: "bi bi-people",
+  },
+
   {
     title: "About",
     href: "/about",
-    icon: "bi bi-people",
+    icon: "bi bi-file-earmark-person",
   },
 ];
 
 const Sidebar = () => {
+  const hideshowMobilemenu = () => {
+    const isopensidebar = document.getElementById("sidebarArea");
+    if (isopensidebar.classList.contains("showSidebar")) {
+      document.getElementById("sidebarArea").classList.remove("showSidebar");
+    }
+  };
+
   const showMobilemenu = () => {
     document.getElementById("sidebarArea").classList.toggle("showSidebar");
   };
@@ -92,10 +72,14 @@ const Sidebar = () => {
     <div>
       <div className="d-flex align-items-center"></div>
 
-      <div className="p-3 mt-2">
+      <div className="p-3 mt-2 sidebarNav-container">
         <Nav vertical className="sidebarNav">
           {navigation.map((navi, index) => (
-            <NavItem key={index} className="sidenav-bg">
+            <NavItem
+              onClick={hideshowMobilemenu}
+              key={index}
+              className="sidenav-bg"
+            >
               <Link
                 to={navi.href}
                 className={

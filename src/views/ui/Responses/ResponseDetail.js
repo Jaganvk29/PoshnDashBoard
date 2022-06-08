@@ -6,7 +6,7 @@ import user1 from "../../../assets/images/users/user1.jpg";
 import axios from "axios";
 import Loader from "../../../layouts/loader/Loader";
 import { Link, useParams } from "react-router-dom";
-
+import { axiosJWT } from "../Auth/axiosJWT";
 const ResponseDetail = () => {
   const [reqId, setReqId] = useState();
   const params = useParams();
@@ -20,8 +20,8 @@ const ResponseDetail = () => {
   const [apiStatus, setApiStatus] = useState();
 
   const getConactData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/contact/${paramid}`, {
+    await axiosJWT
+      .get(`/admin/contact/${paramid}`, {
         headers: {
           Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
         },

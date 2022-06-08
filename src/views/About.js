@@ -1,14 +1,14 @@
 import react, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { axiosJWT } from "./ui/Auth/axiosJWT";
+import jwt_decode from "jwt-decode";
 import {
   Card,
+  Badge,
   CardImg,
-  CardText,
   CardBody,
   CardTitle,
-  CardSubtitle,
-  CardGroup,
   Button,
   Row,
   Col,
@@ -16,11 +16,15 @@ import {
   FormGroup,
   Label,
   Input,
-  FormText,
   Alert,
 } from "reactstrap";
 import Loader from "../layouts/loader/Loader";
+import LoginTImeOut from "../components/LoginTImeOut";
 const About = () => {
+  const [error, setError] = useState({});
+
+  const token = localStorage.getItem("tokenkey");
+
   let history = useNavigate();
 
   // POST STATE  HANDLER
@@ -55,21 +59,21 @@ const About = () => {
   const [image1, setimage1] = useState();
   const [image2, setimage2] = useState();
   const [image3, setimage3] = useState();
-
+  const [isrefreshtoken, setrefreshtoken] = useState(false);
   // GET REQUEST FROM SERVER
   const getAboutData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/about`, {
+    await axiosJWT
+      .get(`/admin/about`, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
         const ResponseData = data.data;
         setApiStatus(data.status);
-        console.log(ResponseData);
 
         const contactData = [];
+
         setAbName(ResponseData[0].name);
         setabExperience(ResponseData[0].experience);
         setabprofessionalaff(ResponseData[0].professional_affiliations);
@@ -78,6 +82,17 @@ const About = () => {
         setimage1(ResponseData[0].image1);
         setimage2(ResponseData[0].image2);
         setimage3(ResponseData[0].image3);
+      })
+      .catch((error) => {
+        setError(error.response.status);
+
+        let currentDate = new Date();
+        const refreshtokencode = localStorage.getItem("refresh");
+
+        const decodedToken = jwt_decode(refreshtokencode);
+        if (decodedToken.exp * 1000 < currentDate.getTime()) {
+          setrefreshtoken(true);
+        }
       });
   };
 
@@ -105,27 +120,27 @@ const About = () => {
     formData.append("professional_background", abprofessionalback);
     formData.append("professional_affiliations", abprofessionalaff);
 
-    axios
+    axiosJWT
       .patch(
-        `${process.env.REACT_APP_API_URL}/admin/about/1/`,
+        `/admin/about/1/`,
         formData,
 
         {
           headers: {
-            Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       )
       .then((response) => {
-        console.log(response);
         setisPosted(response);
         if (response.status === 200) {
           setTimeout(() => {
-            history("/");
+            history("/starter");
           }, 3000);
         }
       })
       .catch((error) => {
+        setError(error.response.status);
         console.log(error);
       });
   };
@@ -145,7 +160,7 @@ const About = () => {
 
   const imageHandler2 = (e) => {
     setUploadeditNewImage2(e);
-    console.log(e);
+
     const reader = new FileReader();
     reader.onload = () => {
       if (reader.readyState === 2) {
@@ -157,7 +172,7 @@ const About = () => {
 
   const imageHandler3 = (e) => {
     setUploadeditNewImage3(e);
-    console.log(e);
+
     const reader = new FileReader();
     reader.onload = () => {
       if (reader.readyState === 2) {
@@ -169,7 +184,9 @@ const About = () => {
 
   return (
     <div>
-      {apiStatus === 200 ? (
+      {isrefreshtoken ? (
+        <LoginTImeOut />
+      ) : apiStatus === 200 ? (
         <div>
           {isPosted.status === 200 && (
             <Alert color="success">
@@ -177,6 +194,18 @@ const About = () => {
               Redirect You To Home Page
             </Alert>
           )}
+          {error >= 400 ? (
+            <Alert color="warning">
+              Some Error Occured Please Try Again Or Close The Website And Open
+              Again
+            </Alert>
+          ) : null}
+          {error === 0 ? (
+            <Alert color="warning">
+              Some Error Occured Please Try Again Or Upload Image Size Below 2Mb
+              For All Images Or Upload One By One
+            </Alert>
+          ) : null}
           <Form>
             <Row>
               <Col xs="12" md="8" lg="9">
@@ -185,7 +214,10 @@ const About = () => {
                 {/* --------------------------------------------------------------------------------*/}
                 <Card>
                   <CardTitle tag="h6" className="border-bottom p-3 mb-0">
-                    <i className="bi bi-bell me-2"> </i>
+                    <Link to="/createabout">
+                      {" "}
+                      <i className="bi bi-bell me-2"> </i>
+                    </Link>
                     About
                   </CardTitle>
                   <CardBody className="p-4">
@@ -231,7 +263,12 @@ const About = () => {
                     </FormGroup>
                     {/* PROFESSIONAL BACKGROUND */}
                     <FormGroup>
-                      <Label for="ab-back">Edit Professional Background</Label>
+                      <Label for="ab-back">
+                        Edit Professional Background{" "}
+                        <Badge color="secondary" className="ms-3">
+                          Use ~ this Symbol For Sepration
+                        </Badge>
+                      </Label>
                       <Input
                         id="ab-back"
                         placeholder="Enter Your Name"
@@ -248,7 +285,10 @@ const About = () => {
 
                     <FormGroup>
                       <Label for="Ab-affi">
-                        Edit professional affiliations
+                        Edit professional affiliations{" "}
+                        <Badge color="secondary" className="ms-3">
+                          Use ~ this Symbol For Sepration
+                        </Badge>
                       </Label>
                       <Input
                         id="Ab-affi"
@@ -467,7 +507,6 @@ const About = () => {
       ) : (
         <Loader />
       )}
-      ;
     </div>
   );
 };

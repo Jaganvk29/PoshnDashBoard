@@ -1,6 +1,10 @@
 import react, { useState, useEffect } from "react";
-import ProjectTables from "../../components/dashboard/ProjectTable";
+
+import jwt_decode from "jwt-decode";
+import close from "../../assets/images/close.png";
+
 import {
+  Button,
   Row,
   Col,
   Table,
@@ -9,27 +13,32 @@ import {
   CardBody,
   CardImg,
 } from "reactstrap";
-import user1 from "../../assets/images/users/user1.jpg";
+import user1 from "../../assets/images/users/user.png";
 import selectimg from "../../assets/images/select.jpg";
-import axios from "axios";
+
 import Loader from "../../layouts/loader/Loader";
-import { Link, Outlet } from "react-router-dom";
-import ResponseDetail from "./Responses/ResponseDetail";
+
+import { axiosJWT } from "./Auth/axiosJWT";
+import LoginTImeOut from "../../components/LoginTImeOut";
 
 const Responses = () => {
+  const token = localStorage.getItem("tokenkey");
+  const [isrefreshtoken, setrefreshtoken] = useState(false);
+
   const [ResponseapiData, setResponseapiData] = useState([]);
   const [apiStatus, setApiStatus] = useState();
 
   const [selectedResponse, setSelectedResponse] = useState(false);
   const [mselectedResponse, setmSelectedResponse] = useState(false);
+  const [currrentSelection, setcurrrentSelection] = useState();
 
   const [selectedResponsedata, setSelectedResponsedata] = useState([]);
 
   const getConactData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/contact/`, {
+    await axiosJWT
+      .get(`/admin/contact/`, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
@@ -50,7 +59,16 @@ const Responses = () => {
           });
         });
 
-        setResponseapiData(contactData);
+        setResponseapiData(contactData.reverse());
+      })
+      .catch((error) => {
+        let currentDate = new Date();
+        const refreshtokencode = localStorage.getItem("refresh");
+
+        const decodedToken = jwt_decode(refreshtokencode);
+        if (decodedToken.exp * 1000 < currentDate.getTime()) {
+          setrefreshtoken(true);
+        }
       });
   };
   // console.log(ResponseapiData);
@@ -68,7 +86,9 @@ const Responses = () => {
         <ProjectTables />
       </Col> */}
 
-        {apiStatus === 200 ? (
+        {isrefreshtoken ? (
+          <LoginTImeOut />
+        ) : apiStatus === 200 ? (
           <Row xs="12" md="6" lg="12">
             <Col xs="12" md="12" lg="4">
               <Card className="card-scroll ">
@@ -79,8 +99,13 @@ const Responses = () => {
                       onClick={() => {
                         setSelectedResponsedata(data);
                         setSelectedResponse(true);
+                        setcurrrentSelection(data.id);
                       }}
-                      className="d-flex align-items-center border-bottom ResponseCard   p-3"
+                      className={`${
+                        currrentSelection === data.id
+                          ? "d-flex align-items-center  border-bottom  ResponseCardactive   p-3"
+                          : "d-flex align-items-center  border-bottom  ResponseCard   p-3"
+                      } `}
                     >
                       <img
                         src={user1}
@@ -211,13 +236,14 @@ const Responses = () => {
                 {" "}
                 <div className="d-flex justify-content-between">
                   <CardTitle tag="h5">Reponses</CardTitle>
-                  <button
+                  <Button
                     onClick={() => {
                       setmSelectedResponse(false);
                     }}
+                    color="transparent"
                   >
-                    close
-                  </button>
+                    <img src={close} />
+                  </Button>
                 </div>
                 <Table
                   className="no-wrap mt-3 align-middle"

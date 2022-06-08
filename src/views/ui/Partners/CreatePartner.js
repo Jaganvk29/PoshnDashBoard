@@ -10,31 +10,30 @@ import {
   Button,
   Row,
   Col,
-  Form,
   FormGroup,
   Label,
   Alert,
 } from "reactstrap";
 import { AvForm, AvField } from "availity-reactstrap-validation";
 
-import axios from "axios";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 
-const CreateProducts = () => {
+const CreatePartner = () => {
+  const [isPosted, setisPosted] = useState([]);
+  const [error, setError] = useState({});
+
   const token = localStorage.getItem("tokenkey");
 
-  const [error, setError] = useState({});
+  const [partnerName, setpartnername] = useState("");
+  const [partnerEmail, setpartneremail] = useState("");
+  const [partnerPhone, setpartnerphone] = useState("");
+  const [partnerLocation, setpartnerlocation] = useState("");
+  const [partnerDesc, setpartnerDesc] = useState("");
+  const [PartnerCategory, setPartnerCategory] = useState("");
   const [getcatedata, setgetcatedata] = useState([]);
 
-  const [ProductCategory, setProductCategory] = useState("");
-
-  const [CategoryId, setCategoryId] = useState("");
-  const [productName, setproductname] = useState("");
-  const [productPrice, setproductPrice] = useState("");
-  const [productDesc, setproductDesc] = useState("");
-
-  const [faqPostStatus, setfaqPostStatus] = useState(false);
+  const [partnerPostStatus, setPartnerPostStatus] = useState(false);
 
   const [alert, setAlert] = useState(true);
 
@@ -42,19 +41,24 @@ const CreateProducts = () => {
   const [imagesize, setimagesize] = useState(false);
   const [blogthumb, setblogthumb] = useState();
 
+  // BROWSER HISTORY TO REDIRECT AFTER POST SUCESSFULLY
+
+  let history = useNavigate();
+
   useEffect(() => {
     getcategory();
   }, []);
 
   const getcategory = async () => {
     await axiosJWT
-      .get(`/admin/product/category`, {
+      .get(`/admin/partner/category`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
         const ResponseData = data.data;
+        console.log(data.status);
 
         const cateData = [];
         ResponseData.forEach((element) => {
@@ -67,37 +71,42 @@ const CreateProducts = () => {
         });
 
         setgetcatedata(cateData);
-      })
-      .catch((error) => {
-        // setError(error.response.status);
-        console.log(error);
       });
   };
 
-  const createfaq = async () => {
+  const createPartner = async () => {
     const formData = new FormData();
 
     if (blogthumb != undefined) {
-      formData.append("category.name", ProductCategory);
-
+      formData.append("category.name", PartnerCategory);
+      formData.append("full_name", partnerName);
+      formData.append("email", partnerEmail);
+      formData.append("phone", partnerPhone);
+      formData.append("location", partnerLocation);
+      formData.append("description", partnerDesc);
       formData.append("image", blogthumb.target.files[0]);
-      formData.append("name", productName);
-      formData.append("price", productPrice);
-      formData.append("description", productDesc);
     }
 
-    await axios
-      .post(`/admin/product/`, formData, {
+    // formData.append("category.name", ProductCategory);
+
+    await axiosJWT
+      .post(`/admin/partner/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
-        setfaqPostStatus(response.status);
+        setPartnerPostStatus(response.status);
+        console.log(response);
+        if (response.status === 201) {
+          setTimeout(() => {
+            history("/partners");
+          }, 2000);
+        }
       })
       .catch((error) => {
-        setError(error.response.status);
         console.log(error);
+        setError(error.response.status);
       });
   };
 
@@ -124,8 +133,8 @@ const CreateProducts = () => {
   };
 
   function handleStatusmsg() {
-    if (faqPostStatus === 201) {
-      setfaqPostStatus(true);
+    if (partnerPostStatus === 201) {
+      setPartnerPostStatus(true);
     }
 
     setTimeout(() => {
@@ -143,14 +152,16 @@ const CreateProducts = () => {
   return (
     <div>
       <div>
-        {faqPostStatus && (
-          <Alert color="success">Product Created successfully</Alert>
+        {partnerPostStatus === 201 && (
+          <Alert color="success">
+            Partner Added successfully ... We Will Redirect You To Home Page
+          </Alert>
         )}
 
         {error >= 400 ? (
           <Alert color="warning">
             Some Error Occured Please Try Again Or Close The Website And Open
-            Again (Hint : Please Fill All Input Fields ...)
+            Again
           </Alert>
         ) : null}
         {error === 0 ? (
@@ -158,36 +169,37 @@ const CreateProducts = () => {
             Some Error Occured Please Try To Upload Image Size Below 2Mb
           </Alert>
         ) : null}
-        <AvForm onSubmit={handleSubmit(createfaq)}>
+
+        <AvForm onSubmit={handleSubmit(createPartner)}>
           <Row>
             <Col xs="12" md="8" lg="9">
               <Card>
                 <CardTitle tag="h3" className="p-3 mb-0">
-                  Add Products
+                  Add Partner
                 </CardTitle>
                 <CardBody className="">
                   {" "}
                   <FormGroup>
                     <AvField
-                      label="Enter Product Name *"
+                      label="Enter Partner Name *"
                       type="text"
-                      errorMessage="Invalid Answer"
+                      errorMessage="Invalid Name"
                       validate={{
                         required: { value: true },
 
                         minLength: { value: 3 },
                       }}
-                      id="ProductName"
-                      name="Enter Product Name"
-                      placeholder="Enter Product Name"
-                      onChange={(event) => setproductname(event.target.value)}
+                      id="PartnerName"
+                      name="Enter Partner Name "
+                      placeholder="Enter Partner Name "
+                      onChange={(event) => setpartnername(event.target.value)}
                     />
                   </FormGroup>
                   <AvField
                     type="select"
                     name="prodcat"
-                    label="Select Product Category Name"
-                    onChange={(event) => setProductCategory(event.target.value)}
+                    label="Select Partner Category "
+                    onChange={(event) => setPartnerCategory(event.target.value)}
                     validate={{
                       required: { value: true },
                     }}
@@ -199,67 +211,70 @@ const CreateProducts = () => {
                       </option>
                     ))}
                   </AvField>
-                  {/* <AvField
-                    type="select"
-                    name="prodcatid"
-                    label="Enter Category Id *"
-                    onChange={(event) => setCategoryId(event.target.value)}
-                    validate={{
-                      required: { value: true },
-                    }}
-                  >
-                    <option>Selct Cateogry Id</option>
-                    {getcatedata.map((cate, index) => (
-                      <option
-                        value={cate.categoryid}
-                        key={index}
-                      >{`${cate.categoryid} - ${cate.title}`}</option>
-                    ))}
-                  </AvField> */}
-                  {/* <FormGroup>
-                    <AvField
-                      type="number"
-                      errorMessage="Enter Only Numeric Characters"
-                      validate={{
-                        required: { value: true },
-
-                        minLength: { value: 1 },
-                      }}
-                      id="CateId"
-                      name="Enter Category Id"
-                      placeholder="Enter Category Id"
-                    />
-                  </FormGroup> */}
                   <FormGroup>
                     <AvField
-                      label="Enter Price *"
-                      type="text"
-                      errorMessage="Invalid Answer"
+                      label="Enter Partner Email *"
+                      type="email"
+                      errorMessage="Invalid Email"
                       validate={{
                         required: { value: true },
 
-                        minLength: { value: 1 },
+                        minLength: { value: 3 },
                       }}
-                      id="ProductPrice"
-                      name="Enter Price"
-                      placeholder="Enter Price"
-                      onChange={(event) => setproductPrice(event.target.value)}
+                      id="PartnerEmail"
+                      name="Enter Partner Email"
+                      placeholder="Enter Partner Email"
+                      onChange={(event) => setpartneremail(event.target.value)}
                     />
                   </FormGroup>
                   <FormGroup>
                     <AvField
-                      label="Enter Product Description *"
+                      label="Enter Partner Contact Number *"
+                      type="text"
+                      errorMessage="Invalid Number"
+                      validate={{
+                        required: { value: true },
+
+                        minLength: { value: 8 },
+                      }}
+                      id="PartnerNumber"
+                      name="Enter Partner Contact Number"
+                      placeholder="Enter Partner Contact Number"
+                      onChange={(event) => setpartnerphone(event.target.value)}
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <AvField
+                      label="Enter Partner Address *"
+                      type="text"
+                      errorMessage="Invalid Address"
+                      validate={{
+                        required: { value: true },
+
+                        minLength: { value: 5 },
+                      }}
+                      id="PartnerAddress"
+                      name="Enter Partner Address"
+                      placeholder="Enter Partner Address"
+                      onChange={(event) =>
+                        setpartnerlocation(event.target.value)
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <AvField
+                      label="Enter Partner Description *"
                       type="textarea"
-                      errorMessage="Invalid Answer"
+                      errorMessage="Invalid Description"
                       validate={{
                         required: { value: true },
 
                         minLength: { value: 10 },
                       }}
-                      id="ProductDesc"
-                      name="Enter Product Description"
-                      placeholder="Enter Product Description"
-                      onChange={(event) => setproductDesc(event.target.value)}
+                      id="PartnerDesc"
+                      name="Enter Partner Description"
+                      placeholder="Enter Partner Description"
+                      onChange={(event) => setpartnerDesc(event.target.value)}
                     />
                   </FormGroup>
                 </CardBody>
@@ -277,7 +292,7 @@ const CreateProducts = () => {
                       <FormGroup>
                         <Button
                           onClick={() => {
-                            createfaq();
+                            createPartner();
                             handleStatusmsg();
                           }}
                           className="btn btn-hover"
@@ -286,11 +301,9 @@ const CreateProducts = () => {
                           size="lg"
                           block
                         >
-                          Publish
+                          Add Partner
                         </Button>
                       </FormGroup>
-
-                      {faqPostStatus ? <Navigate to="/myproducts" /> : null}
                     </div>
                   </CardBody>
                 </Card>
@@ -317,8 +330,8 @@ const CreateProducts = () => {
 
                       <FormGroup>
                         <Label
-                          className="labelbtn mt-3 btn-hover"
                           style={{ backgroundColor: "#324398" }}
+                          className=" btn-hover labelbtn mt-3"
                           for="Addimage"
                         >
                           Add Image
@@ -354,4 +367,4 @@ const CreateProducts = () => {
   );
 };
 
-export default CreateProducts;
+export default CreatePartner;

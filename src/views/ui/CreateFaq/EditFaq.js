@@ -2,36 +2,28 @@ import React, { useState, useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Loader from "../../../layouts/loader/Loader";
+
+import { axiosJWT } from "../Auth/axiosJWT";
 import {
   Card,
-  CardImg,
-  CardText,
   CardBody,
   CardTitle,
-  CardSubtitle,
-  CardGroup,
   Button,
   Row,
   Col,
-  Form,
   FormGroup,
-  Label,
-  Input,
-  FormText,
-  Alert,
 } from "reactstrap";
 
-import {
-  AvForm,
-  AvField,
-  AvValidator,
-  AvGroup,
-} from "availity-reactstrap-validation";
+import { AvForm, AvField } from "availity-reactstrap-validation";
 import { useForm } from "react-hook-form";
+import { Alert } from "reactstrap";
 const EditFaq = () => {
+  const token = localStorage.getItem("tokenkey");
+
   const Params = useParams();
 
   const FaqId = Params.id;
+  const [error, setError] = useState({});
 
   const [showdeletebtn, setshowdeletebtn] = useState(false);
   const [isDeleted, setisDeleted] = useState([]);
@@ -45,24 +37,6 @@ const EditFaq = () => {
   const [faqapiData, setFaqApiData] = useState([]);
   const [apiStatus, setApiStatus] = useState();
 
-  // const Editfaq = async () => {
-  //   const faqData = { question: faqQuestion, answer: faqanswer };
-  //   console.log(faqData);
-
-  //   await axios
-  //     .post(`${process.env.REACT_APP_API_URL}/admin/faq/`, faqData, {
-  //       headers: {
-  //         Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
-  //       },
-  //     })
-  //     .then((response) => {
-  //       setfaqPostStatus(response.status);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // };
-
   // EDITING PATCH REQUEST
 
   const editFormHandler = () => {
@@ -71,37 +45,33 @@ const EditFaq = () => {
       question: faqQuestion,
     };
 
-    console.log(faqEditedData);
-    axios
+    axiosJWT
       .patch(
-        `${process.env.REACT_APP_API_URL}/admin/faq/${FaqId}/`,
+        `/admin/faq/${FaqId}/`,
         faqEditedData,
 
         {
           headers: {
-            Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       )
       .then((response) => {
-        console.log(response);
         setisPosted(response);
       })
       .catch((error) => {
         console.log(error);
+        setError(error.response.status);
       });
   };
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
+
+  // const { register, handleSubmit, watch } = useForm();
+
   const getFaqData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/faq/${FaqId}`, {
+    await axiosJWT
+      .get(`/admin/faq/${FaqId}`, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
@@ -112,6 +82,10 @@ const EditFaq = () => {
         setfaqQuestion(ResponseData.question);
 
         // setFaqApiData(faqData);
+      })
+      .catch((error) => {
+        console.log(error);
+        setError(error.response.status);
       });
   };
 
@@ -126,22 +100,22 @@ const EditFaq = () => {
 
   // DELETE POST
   const faqDelete = () => {
-    axios
+    axiosJWT
       .delete(
-        `${process.env.REACT_APP_API_URL}/admin/faq/${FaqId}/`,
+        `/admin/faq/${FaqId}/`,
 
         {
           headers: {
-            Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       )
       .then((response) => {
-        console.log(response);
         setisDeleted(response.status);
       })
       .catch((error) => {
         console.log(error);
+        setError(error.response.status);
       });
   };
 
@@ -150,9 +124,16 @@ const EditFaq = () => {
       {/* {faqPostStatus && (
         <Alert color="success">Faq Has Created successfully</Alert>
       )} */}
-      <AvForm onSubmit={handleSubmit(editFormHandler)}>
+
+      <AvForm>
         {apiStatus === 200 ? (
           <Row>
+            {error >= 400 ? (
+              <Alert color="warning">
+                Some Error Occured Please Try Again Or Close The Website And
+                Open Again
+              </Alert>
+            ) : null}
             <Col xs="12" md="8" lg="9">
               <Card>
                 <CardTitle tag="h3" className="p-3 mb-0">
@@ -209,10 +190,10 @@ const EditFaq = () => {
                       <FormGroup>
                         <Button
                           onClick={() => {
-                            console.log(faqapiData);
                             editFormHandler();
                           }}
-                          className="btn"
+                          className="btn btn-hover"
+                          style={{ backgroundColor: "#324398" }}
                           color="primary"
                           size="lg"
                           block
@@ -223,7 +204,6 @@ const EditFaq = () => {
                         {!showdeletebtn && (
                           <Button
                             onClick={() => {
-                              console.log(faqapiData);
                               deletebtnhandler();
                             }}
                             className="btn"
@@ -254,7 +234,8 @@ const EditFaq = () => {
                               onClick={() => {
                                 deletebtnhandler();
                               }}
-                              className="btn"
+                              className="btn btn-hover"
+                              style={{ backgroundColor: "#324398" }}
                               color="primary"
                               size="lg"
                               block

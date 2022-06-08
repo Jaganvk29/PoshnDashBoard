@@ -1,64 +1,47 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import {
   Card,
-  CardImg,
-  CardText,
   CardBody,
   CardTitle,
-  CardSubtitle,
-  CardGroup,
   Button,
   Row,
   Col,
-  Form,
   FormGroup,
-  Label,
-  Input,
-  FormText,
   Alert,
 } from "reactstrap";
-import {
-  AvForm,
-  AvField,
-  AvValidator,
-  AvGroup,
-} from "availity-reactstrap-validation";
+import { AvForm, AvField } from "availity-reactstrap-validation";
 
 import axios from "axios";
 import { Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 const CreateFaq = () => {
+  const [error, setError] = useState({});
+
   const [faqQuestion, setfaqQuestion] = useState("");
 
   const [faqanswer, setFaqAnswer] = useState("");
 
   const [faqPostStatus, setfaqPostStatus] = useState(false);
 
-  console.log(faqQuestion);
-  console.log(faqanswer);
-
   const [alert, setAlert] = useState(true);
 
-  // useEffect(() => {
-  //   // when the component is mounted, the alert is displayed for 3 seconds
-
-  // }, []);
-
   const createfaq = async () => {
+    const token = localStorage.getItem("tokenkey");
+
     const faqData = { question: faqQuestion, answer: faqanswer };
-    console.log(faqData);
 
     await axios
       .post(`${process.env.REACT_APP_API_URL}/admin/faq/`, faqData, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((response) => {
         setfaqPostStatus(response.status);
       })
       .catch((error) => {
+        setError(error.response.status);
         console.log(error);
       });
   };
@@ -85,6 +68,14 @@ const CreateFaq = () => {
       {faqPostStatus && (
         <Alert color="success">Faq Has Created successfully</Alert>
       )}
+
+      {error >= 400 ? (
+        <Alert color="warning">
+          Some Error Occured Please Try Again Or Close The Website And Open
+          Again
+        </Alert>
+      ) : null}
+
       <AvForm onSubmit={handleSubmit(createfaq)}>
         <Row>
           <Col xs="12" md="8" lg="9">
@@ -144,7 +135,8 @@ const CreateFaq = () => {
                           createfaq();
                           handleStatusmsg();
                         }}
-                        className="btn"
+                        className="btn btn-hover"
+                        style={{ backgroundColor: "#324398" }}
                         color="primary"
                         size="lg"
                         block

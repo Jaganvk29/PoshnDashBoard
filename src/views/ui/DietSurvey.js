@@ -1,28 +1,27 @@
 import react, { useState, useEffect } from "react";
-import ProjectTables from "../../components/dashboard/ProjectTable";
+
 import selectimg from "../../assets/images/select.jpg";
+import { axiosJWT } from "./Auth/axiosJWT";
 import {
   Row,
   Col,
-  Table,
   Card,
   CardImg,
-  CardText,
   CardBody,
   CardTitle,
-  CardSubtitle,
-  CardGroup,
   Button,
 } from "reactstrap";
-import user1 from "../../assets/images/users/user1.jpg";
+import user1 from "../../assets/images/users/user.png";
+import close from "../../assets/images/close.png";
 
 import axios from "axios";
 import Loader from "../../layouts/loader/Loader";
-import { Link, Outlet } from "react-router-dom";
-import ResponseDetail from "./Responses/ResponseDetail";
-import { element } from "prop-types";
+
+import LoginTImeOut from "../../components/LoginTImeOut";
 
 const DietSurvey = () => {
+  const token = localStorage.getItem("tokenkey");
+
   const [ResponseapiData, setResponseapiData] = useState([]);
   const [apiStatus, setApiStatus] = useState();
 
@@ -32,25 +31,22 @@ const DietSurvey = () => {
   const [selectedResponsedata, setSelectedResponsedata] = useState({});
   const [surveyResponsestate, setsurveyResponsestate] = useState();
 
+  const [isrefreshtoken, setrefreshtoken] = useState(false);
+
+  const [currrentSelection, setcurrrentSelection] = useState();
+
   const { surveyResponse } = selectedResponsedata;
 
-  // if (surveyResponse != null) {
-  //   surveyResponse.forEach((data) => {
-  //     console.log(data);
-  //   });
-  // }
-
   const getConactData = async () => {
-    await axios
-      .get(`${process.env.REACT_APP_API_URL}/admin/dietsurvey/`, {
+    await axiosJWT
+      .get(`/admin/dietsurvey/`, {
         headers: {
-          Authorization: `Token ${process.env.REACT_APP_API_KEY}`,
+          Authorization: `Bearer ${token}`,
         },
       })
       .then((data) => {
         const ResponseData = data.data;
         setApiStatus(data.status);
-        console.log(ResponseData);
 
         const contactData = [];
         const surveyResponseData = [];
@@ -58,54 +54,59 @@ const DietSurvey = () => {
           contactData.push({
             fullname: element.full_name,
             email: element.email,
-            // phone: element.phone,
-            // date: element.date,
-            // message: element.message,
+            phone: element.phone,
 
             id: element.id,
             surveyResponse: element.response,
-            // type: element.consultation_type,
           });
         });
 
         const { surveyResponse } = contactData;
 
-        console.log(surveyResponse);
-
-        // ResponseData.forEach((element) => {
-        //   contactData.push({
-        //     fullname: element.full_name,
-        //     email: element.email,
-        //     // phone: element.phone,
-        //     // date: element.date,
-        //     // message: element.message,
-
-        //     id: element.id,
-        //     surveyResponse: element.response,
-        //     // type: element.consultation_type,
-        //   });
-        // });
-
-        setResponseapiData(contactData);
+        setResponseapiData(contactData.reverse());
+      })
+      .catch((error) => {
+        refreshToken();
       });
   };
   // console.log(ResponseapiData[15].surveyResponse);
+
+  const refreshToken = async () => {
+    const token = localStorage.getItem("tokenkey");
+    const refreshtokencode = localStorage.getItem("refresh");
+
+    try {
+      const res = await axios.post("/admin/login/refresh", {
+        refresh: refreshtokencode,
+      });
+
+      return res.data.access;
+    } catch (err) {
+      // tokenhandler(err);
+
+      if (err.response.status === 401) {
+        setrefreshtoken(true);
+      }
+
+      // return err;
+    }
+  };
 
   useEffect(() => {
     getConactData();
   }, []);
 
-  console.log(surveyResponse);
   return (
     <div>
       <Row className="desktop-respones-container">
-        <h5 className="mb-3">Booking</h5>
+        <h5 className="mb-3">Diet Survey</h5>
 
         {/* <Col lg="12">
         <ProjectTables />
       </Col> */}
-
-        {apiStatus === 200 ? (
+        {isrefreshtoken ? (
+          <LoginTImeOut />
+        ) : apiStatus === 200 ? (
           <Row xs="12" md="6" lg="12">
             <Col xs="12" md="12" lg="4">
               <Card className="card-scroll">
@@ -114,11 +115,15 @@ const DietSurvey = () => {
                     <div
                       key={data.id}
                       onClick={() => {
-                        console.log(data);
                         setSelectedResponsedata(data);
                         setSelectedResponse(true);
+                        setcurrrentSelection(data.id);
                       }}
-                      className="d-flex align-items-center  border-bottom  ResponseCard   p-3"
+                      className={`${
+                        currrentSelection === data.id
+                          ? "d-flex align-items-center  border-bottom  ResponseCardactive   p-3"
+                          : "d-flex align-items-center  border-bottom  ResponseCard   p-3"
+                      } `}
                     >
                       <img
                         src={user1}
@@ -129,7 +134,7 @@ const DietSurvey = () => {
                       />
                       <div className="ms-3">
                         <h6 className="mb-0">{data.fullname}</h6>
-                        <span>{data.email}</span>
+                        <span>{data.phone}</span>
                       </div>
                     </div>
                   ))}
@@ -171,10 +176,10 @@ const DietSurvey = () => {
                           <Card
                             body
                             className="border-bottom"
-                            color="primary"
+                            style={{ backgroundColor: "#324398" }}
                             inverse
                           >
-                            <CardTitle tag="h5">
+                            <CardTitle className="border-bottom pb-4" tag="h5">
                               <div>
                                 <h5>{survey.question.question_text}</h5>
                               </div>
@@ -187,14 +192,18 @@ const DietSurvey = () => {
                                     <h6>{answer.choice_text}</h6>
                                   </li>
                                 ))}
-
-                                {survey.custom_answer != undefined &&
-                                  survey.custom_answer != null && (
-                                    <div>
-                                      <h6>{survey.custom_answer}</h6>
-                                    </div>
-                                  )}
                               </ul>
+                              {survey.custom_answer != undefined &&
+                                survey.custom_answer != null && (
+                                  <div>
+                                    <ol>
+                                      {" "}
+                                      <li>
+                                        <h6>{survey.custom_answer}</h6>
+                                      </li>
+                                    </ol>
+                                  </div>
+                                )}
                             </CardBody>
                           </Card>
                         </div>
@@ -228,13 +237,14 @@ const DietSurvey = () => {
                 {" "}
                 <div className="d-flex justify-content-between">
                   <CardTitle tag="h5">Reponses</CardTitle>
-                  <button
+                  <Button
                     onClick={() => {
                       setmSelectedResponse(false);
                     }}
+                    color="transparent"
                   >
-                    close
-                  </button>
+                    <img src={close} />
+                  </Button>
                 </div>
                 <div>
                   {" "}
@@ -263,10 +273,10 @@ const DietSurvey = () => {
                         <Card
                           body
                           className="border-bottom"
-                          color="primary"
+                          style={{ backgroundColor: "#324398" }}
                           inverse
                         >
-                          <CardTitle tag="h5">
+                          <CardTitle className="border-bottom pb-2" tag="h5">
                             <div>
                               <h5>{survey.question.question_text}</h5>
                             </div>

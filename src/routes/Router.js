@@ -1,123 +1,170 @@
 import { lazy } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
+import Authentication from "../views/ui/Auth/Authentication.js";
+import React from "react";
 
-/****Layouts*****/
-const FullLayout = lazy(() => import("../layouts/FullLayout.js"));
+const Router = () => {
+  /****Layouts*****/
+  const FullLayout = lazy(() => import("../layouts/FullLayout.js"));
 
-/***** Pages ****/
+  /***** Pages ****/
 
-const Starter = lazy(() => import("../views/Starter.js"));
-const About = lazy(() => import("../views/About.js"));
-const Alerts = lazy(() => import("../views/ui/Alerts"));
-const Badges = lazy(() => import("../views/ui/Badges"));
-const Buttons = lazy(() => import("../views/ui/Buttons"));
-const Cards = lazy(() => import("../views/ui/BlogSection"));
+  const Starter = lazy(() => import("../views/Starter.js"));
+  const About = lazy(() => import("../views/About.js"));
 
-const Grid = lazy(() => import("../views/ui/Grid"));
-const Responses = lazy(() => import("../views/ui/Responses.js"));
-const DietSurvey = lazy(() => import("../views/ui/DietSurvey.js"));
-const Booking = lazy(() => import("../views/ui/Booking.js"));
+  const Responses = lazy(() => import("../views/ui/Responses.js"));
+  const DietSurvey = lazy(() => import("../views/ui/DietSurvey.js"));
+  const Booking = lazy(() => import("../views/ui/Booking.js"));
 
-// About
-const CreateAbout = lazy(() => import("../views/ui/About/CreateAbout.js"));
+  // AUTH
+  const ProtectedRoutes = lazy(() => import("./ProtectedRoutes.js"));
 
-// MY Products Sectio
-const MyProducts = lazy(() => import("../views/ui/MyProducts.js"));
-const EditProducts = lazy(() =>
-  import("../views/ui/MyProducts/EditProducts.js")
-);
+  // About
+  const CreateAbout = lazy(() => import("../views/ui/About/CreateAbout.js"));
 
-const CreateCategory = lazy(() =>
-  import("../views/ui/MyProducts/CreateCategory.js")
-);
+  // MY Products Sectio
+  const MyProducts = lazy(() => import("../views/ui/MyProducts.js"));
+  const EditProducts = lazy(() =>
+    import("../views/ui/MyProducts/EditProducts.js")
+  );
 
-const CreateProducts = lazy(() =>
-  import("../views/ui/MyProducts/CreateProducts.js")
-);
+  const CreateCategory = lazy(() =>
+    import("../views/ui/MyProducts/CreateCategory.js")
+  );
 
-const EditCategoryHome = lazy(() =>
-  import("../views/ui/MyProducts/EditCategoryHome.js")
-);
+  const CreateProducts = lazy(() =>
+    import("../views/ui/MyProducts/CreateProducts.js")
+  );
 
-const EditCategory = lazy(() =>
-  import("../views/ui/MyProducts/EditCategory.js")
-);
-// RESPONSES - SECTION
-const ResponseDetail = lazy(() =>
-  import("../views/ui/Responses/ResponseDetail.js")
-);
+  const EditCategoryHome = lazy(() =>
+    import("../views/ui/MyProducts/EditCategoryHome.js")
+  );
 
-// BLOG SECTION - CRUD OPERATION
-const BlogSection = lazy(() => import("../views/ui/BlogSection"));
-const BlogEditHome = lazy(() =>
-  import("../views/ui/CreateBlog/BlogEditHome.js")
-);
-const DraftedBlog = lazy(() => import("../views/ui/CreateBlog/DraftedBlog.js"));
+  const EditCategory = lazy(() =>
+    import("../views/ui/MyProducts/EditCategory.js")
+  );
+  // RESPONSES - SECTION
+  const ResponseDetail = lazy(() =>
+    import("../views/ui/Responses/ResponseDetail.js")
+  );
 
-// FAQ SECTION - CRUD OPERATION
-const CreateFaq = lazy(() => import("../views/ui/CreateFaq/CreateFaq.js"));
-const EditFaq = lazy(() => import("../views/ui/CreateFaq/EditFaq.js"));
-const BlogEdit = lazy(() => import("../views/ui/CreateBlog/BlogEdit.js"));
-const Faq = lazy(() => import("../views/ui/Faq"));
+  // BLOG SECTION - CRUD OPERATION
+  const BlogSection = lazy(() => import("../views/ui/BlogSection"));
+  const BlogEditHome = lazy(() =>
+    import("../views/ui/CreateBlog/BlogEditHome.js")
+  );
+  const DraftedBlog = lazy(() =>
+    import("../views/ui/CreateBlog/DraftedBlog.js")
+  );
 
-const Forms = lazy(() => import("../views/ui/Forms"));
-const Breadcrumbs = lazy(() => import("../views/ui/Breadcrumbs"));
+  // FAQ SECTION - CRUD OPERATION
+  const CreateFaq = lazy(() => import("../views/ui/CreateFaq/CreateFaq.js"));
+  const EditFaq = lazy(() => import("../views/ui/CreateFaq/EditFaq.js"));
+  const BlogEdit = lazy(() => import("../views/ui/CreateBlog/BlogEdit.js"));
+  const Faq = lazy(() => import("../views/ui/Faq"));
 
-/*****Routes******/
+  // Partners
 
-const ThemeRoutes = [
-  {
-    path: "/",
-    element: <FullLayout />,
-    children: [
-      { path: "/starter", exact: true, element: <Starter /> },
-      { path: "/", element: <Navigate to="/starter" /> },
-      { path: "/about", exact: true, element: <About /> },
-      { path: "/createabout", exact: true, element: <CreateAbout /> },
+  const Partners = lazy(() => import("../views/ui/Partners/Partners.js"));
 
-      // BLOG ROUTES
-      { path: "/blog", exact: true, element: <BlogSection /> },
-      { path: "/createblog", exact: true, element: <BlogEditHome /> },
-      { path: "/editblog/:blogid", exact: true, element: <BlogEdit /> },
-      { path: "/draft", exact: true, element: <DraftedBlog /> },
+  const EditPartnerCategory = lazy(() =>
+    import("../views/ui/Partners/EditPartnerCategory.js")
+  );
 
-      // FAQ ROUTES
-      { path: "/faq", exact: true, element: <Faq /> },
-      { path: "/createfaq", exact: true, element: <CreateFaq /> },
-      { path: "/faqedit/:id", element: <EditFaq /> },
+  const PartnerCategoryHome = lazy(() =>
+    import("../views/ui/Partners/PartnerCategoryHome.js")
+  );
 
-      { path: "/dietsurvey", exact: true, element: <DietSurvey /> },
-      { path: "/booking", exact: true, element: <Booking /> },
+  const CreatePartnerCategory = lazy(() =>
+    import("../views/ui/Partners/CreatePartnerCategory.js")
+  );
 
-      // MYPRODUCTS
-      { path: "/myproducts", exact: true, element: <MyProducts /> },
-      { path: "/createproducts", exact: true, element: <CreateProducts /> },
-      { path: "/createcategory", exact: true, element: <CreateCategory /> },
-      { path: "/editecategory", exact: true, element: <EditCategoryHome /> },
-      { path: "/editecategory/:catid", exact: true, element: <EditCategory /> },
+  const CreatePartner = lazy(() =>
+    import("../views/ui/Partners/CreatePartner.js")
+  );
+  const EditPartner = lazy(() => import("../views/ui/Partners/EditPartner.js"));
 
-      {
-        path: "/myproducts/:productid",
-        exact: true,
-        element: <EditProducts />,
-      },
+  return (
+    <div>
+      <Routes>
+        <Route path="/login" element={<Authentication />} />
+        <Route element={<ProtectedRoutes />}>
+          <Route path="/" element={<FullLayout />}>
+            <Route path="starter" element={<Starter />} />
+            <Route path="about" exact={true} element={<About />} />
+            <Route path="createabout" exact={true} element={<CreateAbout />} />
+            <Route path="blog" exact={true} element={<BlogSection />} />
+            <Route path="createblog" exact={true} element={<BlogEditHome />} />
+            <Route path="editblog/:blogid" element={<BlogEdit />} />
+            <Route path="draft" element={<DraftedBlog />} />
 
-      // RESPONSES
-      {
-        path: "/responses",
-        exact: true,
-        element: <Responses />,
-      },
+            <Route path="faq" exact={true} element={<Faq />} />
+            <Route path="createfaq" exact={true} element={<CreateFaq />} />
+            <Route path="faqedit/:id" exact={true} element={<EditFaq />} />
+            <Route path="dietsurvey" exact={true} element={<DietSurvey />} />
+            <Route path="booking" exact={true} element={<Booking />} />
+            <Route path="myproducts" exact={true} element={<MyProducts />} />
+            <Route path="createabout" exact={true} element={<CreateAbout />} />
 
-      // { path: "/alerts", exact: true, element: <Alerts /> },
-      // { path: "/badges", exact: true, element: <Badges /> },
-      // { path: "/buttons", exact: true, element: <Buttons /> },
-      // { path: "/blog", exact: true, element: <Cards /> },
-      // { path: "/grid", exact: true, element: <Grid /> },
-      // { path: "/table", exact: true, element: <Tables /> },
-      // { path: "/breadcrumbs", exact: true, element: <Breadcrumbs /> },
-    ],
-  },
-];
+            <Route
+              path="createproducts"
+              exact={true}
+              element={<CreateProducts />}
+            />
 
-export default ThemeRoutes;
+            <Route
+              path="createcategory"
+              exact={true}
+              element={<CreateCategory />}
+            />
+            <Route
+              path="editecategory"
+              exact={true}
+              element={<EditCategoryHome />}
+            />
+
+            <Route
+              path="editecategory/:catid"
+              exact={true}
+              element={<EditCategory />}
+            />
+            <Route
+              path="myproducts/:productid"
+              exact={true}
+              element={<EditProducts />}
+            />
+            <Route path="responses" exact={true} element={<Responses />} />
+            <Route path="partners" exact={true} element={<Partners />} />
+            <Route
+              path="createpartner"
+              exact={true}
+              element={<CreatePartner />}
+            />
+
+            <Route
+              path="createpartnercategory"
+              exact={true}
+              element={<CreatePartnerCategory />}
+            />
+
+            <Route
+              path="partnercategory"
+              exact={true}
+              element={<PartnerCategoryHome />}
+            />
+            <Route
+              path="editpartnercategory/:pcatId"
+              exact={true}
+              element={<EditPartnerCategory />}
+            />
+
+            <Route path="editpartner/:partnerID" element={<EditPartner />} />
+          </Route>
+        </Route>
+      </Routes>
+      ;
+    </div>
+  );
+};
+
+export default Router;

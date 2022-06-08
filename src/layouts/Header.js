@@ -1,5 +1,6 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import AuthContext from "../Context/AuthContext";
 import {
   Navbar,
   Collapse,
@@ -15,12 +16,15 @@ import {
 } from "reactstrap";
 import Logo from "./Logo";
 import { ReactComponent as LogoWhite } from "../assets/images/logos/materialprowhite.svg";
-import user1 from "../assets/images/users/user4.jpg";
+import user1 from "../assets/images/users/user.png";
 
 const Header = () => {
+  const history = useNavigate();
+
   const [isOpen, setIsOpen] = React.useState(false);
 
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const { isLogged, authHandler } = useContext(AuthContext);
 
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   const Handletoggle = () => {
@@ -29,25 +33,39 @@ const Header = () => {
   const showMobilemenu = () => {
     document.getElementById("sidebarArea").classList.toggle("showSidebar");
   };
+
+  const remove = () => {
+    localStorage.removeItem("Name");
+    localStorage.removeItem("Password");
+    localStorage.removeItem("tokenkey");
+    localStorage.removeItem("refresh");
+    authHandler(false);
+    history("/login");
+  };
+
   return (
-    <Navbar color="primary" dark expand="md" className="fix-header ">
-      <div className="d-flex justify-content-between">
+    <Navbar
+      style={{ backgroundColor: "#324398" }}
+      dark
+      expand="md"
+      className="zindex10 fix-header"
+    >
+      <div className="d-flex align-items-center">
+        <NavbarBrand href="/starter">
+          <Logo className=" d-lg-none" />
+        </NavbarBrand>
         <Button
+          style={{ backgroundColor: "#324398" }}
           color="primary"
           className=" d-lg-none"
           onClick={() => showMobilemenu()}
         >
           <i className="bi bi-list"></i>
         </Button>
-        <div className="d-lg-block d-none me-5 pe-3">
-          <Logo />
-        </div>
-        {/* <NavbarBrand href="/">
-          <LogoWhite className=" d-lg-none" />
-        </NavbarBrand> */}
       </div>
       <div className="hstack gap-2">
         <Button
+          style={{ backgroundColor: "#324398" }}
           color="primary"
           size="sm"
           className="d-sm-block d-md-none"
@@ -62,29 +80,7 @@ const Header = () => {
       </div>
 
       <Collapse navbar isOpen={isOpen}>
-        {/* <Nav className="me-auto" navbar>
-          <NavItem>
-            <Link to="/starter" className="nav-link">
-              Starter
-            </Link>
-          </NavItem>
-          <NavItem>
-            <Link to="/about" className="nav-link">
-              About
-            </Link>
-          </NavItem>
-          <UncontrolledDropdown inNavbar nav>
-            <DropdownToggle caret nav>
-              DD Menu
-            </DropdownToggle>
-            <DropdownMenu end>
-              <DropdownItem>Option 1</DropdownItem>
-              <DropdownItem>Option 2</DropdownItem>
-              <DropdownItem divider />
-              <DropdownItem>Reset</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </Nav> */}
+        <Nav className="me-auto" navbar></Nav>
         <Dropdown isOpen={dropdownOpen} toggle={toggle}>
           <DropdownToggle color="transparent">
             <img
@@ -95,13 +91,7 @@ const Header = () => {
             ></img>
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem header>Info</DropdownItem>
-            <DropdownItem>My Account</DropdownItem>
-            <DropdownItem>Edit Profile</DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem>My Balance</DropdownItem>
-            <DropdownItem>Inbox</DropdownItem>
-            <DropdownItem>Logout</DropdownItem>
+            <DropdownItem onClick={remove}> Logout </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </Collapse>

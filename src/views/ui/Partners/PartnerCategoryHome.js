@@ -4,7 +4,7 @@ import axios from "axios";
 import Loader from "../../../layouts/loader/Loader";
 import Blog from "../../../components/dashboard/Blog";
 import { axiosJWT } from "../Auth/axiosJWT";
-const EditCategoryHome = () => {
+const PartnerCategoryHome = () => {
   const token = localStorage.getItem("tokenkey");
 
   const [ProductapiData, setMyproductsApiData] = useState([]);
@@ -12,7 +12,7 @@ const EditCategoryHome = () => {
 
   const getMyproductData = async () => {
     await axiosJWT
-      .get(`/admin/product/category`, {
+      .get(`/admin/partner/category`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -34,6 +34,9 @@ const EditCategoryHome = () => {
         });
 
         setMyproductsApiData(Myproductarr);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   };
 
@@ -43,7 +46,7 @@ const EditCategoryHome = () => {
 
   return (
     <div>
-      <h5>EDIT cagtegory</h5>
+      <h5>Edit cagtegory</h5>
       {apiStatus === 200 ? (
         <Row>
           <div className="mt-5"></div>
@@ -52,7 +55,7 @@ const EditCategoryHome = () => {
               <Blog
                 title={blg.title}
                 color={"primary"}
-                link={`/editecategory/${blg.id}`}
+                link={`/editpartnercategory/${blg.id}`}
                 badgecol="success"
               />
             </Col>
@@ -65,4 +68,4 @@ const EditCategoryHome = () => {
   );
 };
 
-export default EditCategoryHome;
+export default PartnerCategoryHome;
